@@ -1,1 +1,8 @@
 <p>test-map works!</p>
+<!-- <div id="hotel_map"></div>
+<p>fini</p> -->
+<app-ol-map class="map"
+[center]="[-483281,6904172]"
+[zoom]="8.5"
+(mapReady)="onMapReady($event)"
+></app-ol-map>
