@@ -7,9 +7,12 @@ import VectorLayer from 'ol/layer/Vector';
 import Projection from 'ol/proj/Projection';
 import {register}  from 'ol/proj/proj4';
 import {get as GetProjection} from 'ol/proj'
-import {coordinateRelationship, Extent} from 'ol/extent';
+import {coordinateRelationship, Extent, getCenter} from 'ol/extent';
 import TileLayer from 'ol/layer/Tile';
 import OSM, {ATTRIBUTION} from 'ol/source/OSM';
+import TileSource from 'ol/source/Tile';
+import Static from 'ol/source/ImageStatic';
+import ImageLayer from 'ol/layer/Image';
 
 @Component({
   selector: 'app-ol-map',
@@ -24,6 +27,8 @@ export class OlMapComponent implements  AfterViewInit {
   projection: Projection | undefined;
   extent: Extent = [-20026376.39, -20048966.10, 20026376.39, 20048966.10];
   Map: Map | undefined;
+  exampleLayer: TileLayer | undefined;
+  psoLayer: ImageLayer | undefined;
   @Output() mapReady = new EventEmitter<Map>();
 
   constructor(private zone: NgZone, private cd: ChangeDetectorRef) { }
@@ -37,8 +42,21 @@ export class OlMapComponent implements  AfterViewInit {
   }
 
   private initMap(): void{
-    // proj4.defs("EPSG:3857","+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs");
-    // register(proj4)
+    this.exampleLayer = new TileLayer({
+      source: new OSM({})
+    });
+
+    this.psoLayer = new ImageLayer({
+      source: new Static({
+        url: 'http://localhost:4200/assets/map/pso_largemap_optimised.png',
+        projection: new Projection({
+          code: 'psomap',
+          units: 'pixels',
+          extent: [0, 0, 12288, 12288]
+        })
+      })
+    })
+
     this.projection = GetProjection('EPSG:3857');
     this.projection.setExtent(this.extent);
     this.view = new View({
@@ -46,11 +64,19 @@ export class OlMapComponent implements  AfterViewInit {
       zoom: this.zoom,
       projection: this.projection,
     });
+    // this.view = new View({
+    //   center: getCenter([0, 0, 12288, 12288]),
+    //   zoom: 2,
+    //   projection: new Projection({
+    //     code: 'psomap',
+    //     units: 'pixels',
+    //     extent: [0, 0, 12288, 12288]
+    //   }),
+    // });
+
     this.Map = new Map({
-      layers: [new TileLayer({
-        source: new OSM({})
-      })],
-      target: 'map',
+      layers: [this.exampleLayer],
+      target: 'mapid',
       view: this.view,
       controls: DefaultControls().extend([
         new ScaleLine({}),
