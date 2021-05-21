@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MapLocation } from '../ol-map/map-location';
 
 
 @Component({
@@ -17,5 +18,13 @@ export class TestMapComponent implements OnInit {
 
   public onMapReady(things: any): void {
     console.log('map ready', things);
+  }
+
+  public clickedEvent(info: any): void {
+    console.log('clickedEvent', info);
+  }
+
+  public onCurrentLocation(location: MapLocation): void {
+    // console.log(location);
   }
 }

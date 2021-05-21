@@ -13,74 +13,91 @@ import OSM, {ATTRIBUTION} from 'ol/source/OSM';
 import TileSource from 'ol/source/Tile';
 import Static from 'ol/source/ImageStatic';
 import ImageLayer from 'ol/layer/Image';
+import * as olInteraction from 'ol/interaction';
+import { MapLocation } from './map-location';
 
 @Component({
   selector: 'app-ol-map',
   templateUrl: './ol-map.component.html',
   styleUrls: ['./ol-map.component.scss']
 })
-export class OlMapComponent implements  AfterViewInit {
+export class OlMapComponent implements AfterViewInit {
   @Input() public center: Coordinate | undefined;
   @Input() public zoom: number | undefined;
+  @Output() public mapLocation = new EventEmitter<MapLocation>();
+  @Output() public mapReady = new EventEmitter<Map>();
 
-  view: View | undefined;
+  extent: Extent = [0, 0, 1024, 1024];
   projection: Projection | undefined;
-  extent: Extent = [-20026376.39, -20048966.10, 20026376.39, 20048966.10];
-  Map: Map | undefined;
-  exampleLayer: TileLayer | undefined;
   psoLayer: ImageLayer | undefined;
-  @Output() mapReady = new EventEmitter<Map>();
+  view: View | undefined;
+  Map: Map | undefined;
 
-  constructor(private zone: NgZone, private cd: ChangeDetectorRef) { }
+  constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
-
-  ngAfterViewInit():void {
+  public ngAfterViewInit(): void {
     if (!this.Map) {
-      this.zone.runOutsideAngular(() => this.initMap())
+      // this.zone.runOutsideAngular(() => this.initMap())
+      this.initMap();
     } 
-    setTimeout(()=>this.mapReady.emit(this.Map));
+
+    // setTimeout(()=>this.mapReady.emit(this.Map));
+    this.mapReady.emit(this.Map);
   }
 
-  private initMap(): void{
-    this.exampleLayer = new TileLayer({
-      source: new OSM({})
+  private initMap(): void {
+    this.projection = new Projection({
+      code: 'pso-image',
+      units: 'pixels',
+      extent: this.extent,
+    });
+
+    this.view = new View({
+      projection: this.projection,
+      center: getCenter(this.extent),
+      zoom: 2,
+      maxZoom: 8
     });
 
     this.psoLayer = new ImageLayer({
       source: new Static({
-        url: 'http://localhost:4200/assets/map/pso_largemap_optimised.png',
+        attributions: 'todo',
+        url: 'http://localhost:4200/assets/map/image001.png',
         projection: new Projection({
           code: 'psomap',
           units: 'pixels',
-          extent: [0, 0, 12288, 12288]
-        })
+          extent: this.extent
+        }),
+        imageExtent: this.extent
       })
     })
 
-    this.projection = GetProjection('EPSG:3857');
-    this.projection.setExtent(this.extent);
-    this.view = new View({
-      center: this.center,
-      zoom: this.zoom,
-      projection: this.projection,
-    });
-    // this.view = new View({
-    //   center: getCenter([0, 0, 12288, 12288]),
-    //   zoom: 2,
-    //   projection: new Projection({
-    //     code: 'psomap',
-    //     units: 'pixels',
-    //     extent: [0, 0, 12288, 12288]
-    //   }),
-    // });
-
     this.Map = new Map({
-      layers: [this.exampleLayer],
+      layers: [this.psoLayer],
       target: 'mapid',
-      view: this.view,
-      controls: DefaultControls().extend([
-        new ScaleLine({}),
-      ]),
+      view: this.view
     });
+
+    this.Map.on('moveend', this.emitUserLocation.bind(this));
+  }
+
+  private emitUserLocation(): void {
+    const view = this.Map?.getView();
+    if (!view) {
+      return;
+    }
+
+    const location: MapLocation = {
+      center: view.getCenter() ?? [],
+      zoom: view.getZoom() ?? 0,
+      rotation: view.getRotation()
+    };
+
+    this.mapLocation.next(location);
   }
 }
+
+// ,
+//       controls: DefaultControls().extend([
+//         new ScaleLine({}),
+//       ]),
