@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace psomysqlefcore.model
+namespace psomysqlefcore.model.Entities
 {
     public class FeatureType
     {

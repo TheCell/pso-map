@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using psomysqlefcore.model;
+using psomysqlefcore.model.Entities;
 
 namespace psomysqlefcore
 {
@@ -16,7 +16,6 @@ namespace psomysqlefcore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
         }
     }
 }
