@@ -110,13 +110,23 @@ export class OlMapComponent implements AfterViewInit {
 
   private onDoubleClick(event: MapBrowserEvent): void {
     console.log('doubleclick', event.coordinate);
+    const newFeature = new Feature(new Point(event.coordinate));
+    newFeature.setStyle(new Style({
+      image: new Icon({
+        anchor: [0.5, 16],
+        anchorXUnits: IconAnchorUnits.FRACTION,
+        anchorYUnits: IconAnchorUnits.PIXELS,
+        src: '/assets/symbols/diamond.png'
+      })
+    }));
+    this.diamondSymbols?.getSource().addFeature(newFeature);
   }
 
   private addDiamonds(): void {
     if (!this.map) {
       return;
     }
-    
+
     const diamonds = new Array<Feature>(100);
     const diamondStyle = new Style({
       image: new Icon({
