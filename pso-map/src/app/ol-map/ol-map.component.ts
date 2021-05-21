@@ -90,6 +90,33 @@ export class OlMapComponent implements AfterViewInit {
       this.map.removeInteraction(zoomInteraction);
     }
 
+    this.addDiamonds();
+  }
+
+  private onMoveEnd(): void {
+    const view = this.map?.getView();
+    if (!view) {
+      return;
+    }
+
+    const location: MapLocation = {
+      center: view.getCenter() ?? [],
+      zoom: view.getZoom() ?? 0,
+      rotation: view.getRotation()
+    };
+
+    this.mapLocation.next(location);
+  }
+
+  private onDoubleClick(event: MapBrowserEvent): void {
+    console.log('doubleclick', event.coordinate);
+  }
+
+  private addDiamonds(): void {
+    if (!this.map) {
+      return;
+    }
+    
     const diamonds = new Array<Feature>(100);
     const diamondStyle = new Style({
       image: new Icon({
@@ -115,24 +142,5 @@ export class OlMapComponent implements AfterViewInit {
     });
 
     this.map.addLayer(this.diamondSymbols);
-  }
-
-  private onMoveEnd(): void {
-    const view = this.map?.getView();
-    if (!view) {
-      return;
-    }
-
-    const location: MapLocation = {
-      center: view.getCenter() ?? [],
-      zoom: view.getZoom() ?? 0,
-      rotation: view.getRotation()
-    };
-
-    this.mapLocation.next(location);
-  }
-
-  private onDoubleClick(event: MapBrowserEvent): void {
-    console.log('doubleclick', event.coordinate);
   }
 }
