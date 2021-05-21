@@ -15,6 +15,10 @@ import Static from 'ol/source/ImageStatic';
 import ImageLayer from 'ol/layer/Image';
 import * as olInteraction from 'ol/interaction';
 import { MapLocation } from './map-location';
+import Point from 'ol/geom/Point';
+import {Icon, Style} from 'ol/style';
+import IconAnchorUnits from 'ol/style/IconAnchorUnits';
+import VectorSource from 'ol/source/Vector';
 
 @Component({
   selector: 'app-ol-map',
@@ -32,6 +36,7 @@ export class OlMapComponent implements AfterViewInit {
   psoLayer: ImageLayer | undefined;
   view: View | undefined;
   map: Map | undefined;
+  diamondSymbols: VectorLayer | undefined;
 
   constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
@@ -70,7 +75,7 @@ export class OlMapComponent implements AfterViewInit {
         }),
         imageExtent: this.extent
       })
-    })
+    });
 
     this.map = new Map({
       layers: [this.psoLayer],
@@ -84,6 +89,32 @@ export class OlMapComponent implements AfterViewInit {
     if (zoomInteraction) {
       this.map.removeInteraction(zoomInteraction);
     }
+
+    const diamonds = new Array<Feature>(100);
+    const diamondStyle = new Style({
+      image: new Icon({
+        anchor: [0.5, 16],
+        anchorXUnits: IconAnchorUnits.FRACTION,
+        anchorYUnits: IconAnchorUnits.PIXELS,
+        src: '/assets/symbols/diamond.png'
+      })
+    });
+    
+    for(let i = 0; i < 100; ++i) {
+      const coordinates = [1024 * Math.random(), 1024 * Math.random()];
+      diamonds[i] = new Feature(new Point(coordinates));
+      diamonds[i].setStyle(diamondStyle);
+    }
+
+    const diamondVectorSource = new VectorSource({
+      features: [...diamonds]
+    });
+
+    this.diamondSymbols = new VectorLayer({
+      source: diamondVectorSource
+    });
+
+    this.map.addLayer(this.diamondSymbols);
   }
 
   private onMoveEnd(): void {
