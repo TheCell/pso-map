@@ -31,7 +31,7 @@ export class OlMapComponent implements AfterViewInit {
   @Output() public mapLocation = new EventEmitter<MapLocation>();
   @Output() public mapReady = new EventEmitter<Map>();
 
-  extent: Extent = [0, 0, 1024, 1024];
+  extent: Extent = [0, 0, 2048, 2048];
   projection: Projection | undefined;
   psoLayer: ImageLayer | undefined;
   view: View | undefined;
@@ -67,7 +67,7 @@ export class OlMapComponent implements AfterViewInit {
     this.psoLayer = new ImageLayer({
       source: new Static({
         attributions: 'todo',
-        url: 'http://localhost:4200/assets/map/image001.png',
+        url: 'http://localhost:4200/assets/map/psoMap.png',
         projection: new Projection({
           code: 'psomap',
           units: 'pixels',
@@ -138,7 +138,7 @@ export class OlMapComponent implements AfterViewInit {
     });
     
     for(let i = 0; i < 100; ++i) {
-      const coordinates = [1024 * Math.random(), 1024 * Math.random()];
+      const coordinates = [2048 * Math.random(), 2048 * Math.random()];
       diamonds[i] = new Feature(new Point(coordinates));
       diamonds[i].setStyle(diamondStyle);
     }
