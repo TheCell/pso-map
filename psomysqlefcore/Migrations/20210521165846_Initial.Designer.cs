@@ -8,8 +8,8 @@ using psomysqlefcore;
 namespace psomysqlefcore.Migrations
 {
     [DbContext(typeof(PsoMapContext))]
-    [Migration("20210521165158_RenamedColumns")]
-    partial class RenamedColumns
+    [Migration("20210521165846_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -30,6 +30,13 @@ namespace psomysqlefcore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FeatureType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Name = "asdlf"
+                        });
                 });
 
             modelBuilder.Entity("psomysqlefcore.model.Entities.MapFeature", b =>

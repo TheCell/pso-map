@@ -28,6 +28,13 @@ namespace psomysqlefcore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FeatureType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Name = "asdlf"
+                        });
                 });
 
             modelBuilder.Entity("psomysqlefcore.model.Entities.MapFeature", b =>

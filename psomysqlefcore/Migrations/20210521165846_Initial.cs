@@ -26,9 +26,9 @@ namespace psomysqlefcore.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    xCoord = table.Column<float>(type: "float", nullable: false),
-                    yCoord = table.Column<float>(type: "float", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true),
+                    XCoord = table.Column<float>(type: "float", nullable: false),
+                    YCoord = table.Column<float>(type: "float", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     FeatureTypeId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -41,6 +41,11 @@ namespace psomysqlefcore.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "FeatureType",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 1L, "asdlf" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MapFeature_FeatureTypeId",
