@@ -1,5 +1,5 @@
 import {Component, NgZone, AfterViewInit, Output, Input, EventEmitter, ChangeDetectorRef } from '@angular/core';
-import {View, Feature, Map } from 'ol';
+import {View, Feature, Map, MapBrowserEvent } from 'ol';
 import {Coordinate} from 'ol/coordinate';
 import { ScaleLine, defaults as DefaultControls} from 'ol/control';
 // import proj4 from 'proj4';
@@ -31,18 +31,18 @@ export class OlMapComponent implements AfterViewInit {
   projection: Projection | undefined;
   psoLayer: ImageLayer | undefined;
   view: View | undefined;
-  Map: Map | undefined;
+  map: Map | undefined;
 
   constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
   public ngAfterViewInit(): void {
-    if (!this.Map) {
+    if (!this.map) {
       // this.zone.runOutsideAngular(() => this.initMap())
       this.initMap();
     } 
 
     // setTimeout(()=>this.mapReady.emit(this.Map));
-    this.mapReady.emit(this.Map);
+    this.mapReady.emit(this.map);
   }
 
   private initMap(): void {
@@ -72,17 +72,22 @@ export class OlMapComponent implements AfterViewInit {
       })
     })
 
-    this.Map = new Map({
+    this.map = new Map({
       layers: [this.psoLayer],
       target: 'mapid',
       view: this.view
     });
 
-    this.Map.on('moveend', this.emitUserLocation.bind(this));
+    this.map.on('moveend', this.onMoveEnd.bind(this));
+    this.map.on('dblclick', this.onDoubleClick.bind(this));
+    const zoomInteraction = this.map.getInteractions().getArray().find((interaction) => interaction instanceof olInteraction.DoubleClickZoom );
+    if (zoomInteraction) {
+      this.map.removeInteraction(zoomInteraction);
+    }
   }
 
-  private emitUserLocation(): void {
-    const view = this.Map?.getView();
+  private onMoveEnd(): void {
+    const view = this.map?.getView();
     if (!view) {
       return;
     }
@@ -95,9 +100,8 @@ export class OlMapComponent implements AfterViewInit {
 
     this.mapLocation.next(location);
   }
-}
 
-// ,
-//       controls: DefaultControls().extend([
-//         new ScaleLine({}),
-//       ]),
+  private onDoubleClick(event: MapBrowserEvent): void {
+    console.log('doubleclick', event.coordinate);
+  }
+}
