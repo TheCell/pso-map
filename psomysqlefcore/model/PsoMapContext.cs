@@ -7,6 +7,7 @@ namespace psomysqlefcore
     {
         public DbSet<FeatureType> FeatureType { get; set; }
         public DbSet<MapFeature> MapFeature { get; set; }
+        public DbSet<Users> Users { get; set; }
 
         private const string connectionString = "server=localhost;database=library;user=user;password=password";
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
