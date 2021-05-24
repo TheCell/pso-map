@@ -8,8 +8,8 @@ using psomysqlefcore;
 namespace psomysqlefcore.Migrations
 {
     [DbContext(typeof(PsoMapContext))]
-    [Migration("20210524134022_AddedUserTable")]
-    partial class AddedUserTable
+    [Migration("20210524134624_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

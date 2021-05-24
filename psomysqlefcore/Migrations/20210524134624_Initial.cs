@@ -21,6 +21,22 @@ namespace psomysqlefcore.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Username = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: true),
+                    UserRights = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MapFeature",
                 columns: table => new
                 {
@@ -42,11 +58,6 @@ namespace psomysqlefcore.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "FeatureType",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 1L, "asdlf" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_MapFeature_FeatureTypeId",
                 table: "MapFeature",
@@ -57,6 +68,9 @@ namespace psomysqlefcore.Migrations
         {
             migrationBuilder.DropTable(
                 name: "MapFeature");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "FeatureType");
