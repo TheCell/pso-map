@@ -67,11 +67,11 @@ namespace psomysqlefcore.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("text");
 
+                    b.Property<int>("UserRights")
+                        .HasColumnType("int");
+
                     b.Property<string>("Username")
                         .HasColumnType("text");
-
-                    b.Property<int>("userRights")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

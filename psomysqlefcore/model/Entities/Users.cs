@@ -10,6 +10,6 @@
 
         public string Password { get; set; }
 
-        public int userRights { get; set; }
+        public int UserRights { get; set; }
     }
 }
