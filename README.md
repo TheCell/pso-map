@@ -12,6 +12,9 @@ start the frontend via
 to develop the database navigate to /psomysqlefcore and run
 `dotnet tools restore`
 
+navigate to /pso-backend
+`composer install`
+
 # generating the db script
 navigate to /psomysqlefcore with the PowerShell
 `dotnet ef migrations script -o mysqlScript.sql`
