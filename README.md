@@ -15,6 +15,9 @@ to develop the database navigate to /psomysqlefcore and run
 navigate to /pso-backend
 `composer install`
 
+after working on the php, don't forget to update composer with
+`composer dumpautoload -o`
+
 # generating the db script
 navigate to /psomysqlefcore with the PowerShell
 `dotnet ef migrations script -o mysqlScript.sql`
