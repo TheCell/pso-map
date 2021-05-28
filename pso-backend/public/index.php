@@ -1,6 +1,7 @@
 <?php
 require "../bootstrap.php";
 use Src\Controller\MapFeatureController;
+use Src\Controller\FeatureTypeController;
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
@@ -11,26 +12,43 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode( '/', $uri );
 $apipart = array_slice($uri, 4);
-var_dump($apipart);
 
-// all of our endpoints start with /mapfeature
-// everything else results in a 404 Not Found
-if (!isset($apipart[0]) || $apipart[0] !== 'mapfeature') {
-    echo "nö";
+if (!isset($apipart[0]))
+{
     header("HTTP/1.1 404 Not Found");
     exit();
 }
 
-// the user id is, of course, optional and must be a number:
-$featuresOfType = null;
-if (isset($apipart[1]))
+switch($apipart[0])
 {
-    $featuresOfType = (int) $apipart[1];
+    case 'mapfeature': 
+        $featureTypeId = null;
+        if (isset($apipart[1]))
+        {
+            $featureTypeId = (int) $apipart[1];
+        }
+
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        $controller = new MapFeatureController($dbConnection, $requestMethod, $featureTypeId);
+        $controller->processRequest();
+        break;
+    case 'featuretype':
+        $featureTypeId = null;
+        if (isset($apipart[1]))
+        {
+            $featureTypeId = (int) $apipart[1];
+        }
+
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        $controller = new FeatureTypeController($dbConnection, $requestMethod, $featureTypeId);
+        $controller->processRequest();
+        break;
+    default:
+        header("HTTP/1.1 404 Not Found");
+        exit();
 }
 
-$requestMethod = $_SERVER["REQUEST_METHOD"];
 
-// pass the request method and user ID to the PersonController and process the HTTP request:
-$controller = new MapFeatureController($dbConnection, $requestMethod, $featuresOfType);
-$controller->processRequest();
 ?>
