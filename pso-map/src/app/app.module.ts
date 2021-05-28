@@ -9,6 +9,7 @@ import { OlMapComponent } from './ol-map/ol-map.component';
 import { AuthModule } from './auth/auth/auth.module';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { ApiModule } from './api/api.module';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { RouterModule } from '@angular/router';
     RouterModule,
     ReactiveFormsModule,
     HttpClientModule,
-    AuthModule
+    AuthModule,
+    ApiModule
   ],
   providers: [HttpClient],
   bootstrap: [AppComponent]

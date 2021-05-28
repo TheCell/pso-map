@@ -5,9 +5,8 @@ import { RegisterComponent } from './auth/components/register/register.component
 import { TestMapComponent } from './test-map/test-map.component';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'test-map', component: TestMapComponent }
+  { path: 'test-map', component: TestMapComponent },
+  { path: '', redirectTo: '/test-map', pathMatch: 'full' }
 ];
 
 @NgModule({

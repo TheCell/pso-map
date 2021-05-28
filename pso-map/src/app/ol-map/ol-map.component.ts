@@ -29,6 +29,7 @@ export class OlMapComponent implements AfterViewInit {
   @Input() public center: Coordinate | undefined;
   @Input() public zoom: number | undefined;
   @Output() public mapLocation = new EventEmitter<MapLocation>();
+  @Output() public addLocation = new EventEmitter<Coordinate>();
   @Output() public mapReady = new EventEmitter<Map>();
 
   extent: Extent = [0, 0, 2048, 2048];
@@ -67,7 +68,7 @@ export class OlMapComponent implements AfterViewInit {
     this.psoLayer = new ImageLayer({
       source: new Static({
         attributions: 'todo',
-        url: 'http://localhost:4200/assets/map/psoMap.png',
+        url: '/assets/map/psoMap.png',
         projection: new Projection({
           code: 'psomap',
           units: 'pixels',
@@ -120,6 +121,7 @@ export class OlMapComponent implements AfterViewInit {
       })
     }));
     this.diamondSymbols?.getSource().addFeature(newFeature);
+    this.addLocation.emit(event.coordinate);
   }
 
   private addDiamonds(): void {

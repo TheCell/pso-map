@@ -79,6 +79,9 @@ class MapFeatureController
         {
             return $this->unprocessableEntityResponse();
         }
+        var_dump($input);
+        unset($input['id']);
+        var_dump($input);
         $this->mapFeatureGateway->insert($input);
         $response['status_code_header'] = 'HTTP/1.1 201 Created';
         $response['body'] = null;
@@ -107,11 +110,6 @@ class MapFeatureController
         }
         
         if (!isset($input['YCoord']))
-        {
-            return false;
-        }
-
-        if (!isset($input['Description']))
         {
             return false;
         }
