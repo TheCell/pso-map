@@ -5,6 +5,7 @@ import Point from 'ol/geom/Point';
 import { featureType } from '../api/FeatureType';
 import { FeaturetypeService } from '../api/featuretype.service';
 import { MapFeatureService } from '../api/map-feature.service';
+import { mapFeature } from '../api/mapFeature';
 import { MapLocation } from '../ol-map/map-location';
 
 @Component({
@@ -14,6 +15,7 @@ import { MapLocation } from '../ol-map/map-location';
 })
 export class TestMapComponent implements OnInit {
   public featureTypes: Array<featureType> = [];
+  public mapFeatures: Array<mapFeature> = [];
 
   constructor(
     private featuretypeService: FeaturetypeService,
@@ -25,6 +27,7 @@ export class TestMapComponent implements OnInit {
       console.log(this.featureTypes);
     });
     this.mapFeatureService.getMapFeatures().subscribe((mapFeatures) => {
+      this.mapFeatures = mapFeatures;
       console.log(mapFeatures);
     });
     this.mapFeatureService.getMapFeaturesForType(1).subscribe((mapFeatures) => {
@@ -39,9 +42,9 @@ export class TestMapComponent implements OnInit {
   public addLocation(info: Coordinate): void {
     console.log('clickedEvent', info);
     this.mapFeatureService.addMapFeature({
-      featureTypeId: 1,
-      xCoord: info[0],
-      yCoord: info[1]
+      FeatureTypeId: 1,
+      XCoord: info[0],
+      YCoord: info[1]
     }).subscribe(() => {
       console.log("jobs done");
     }, (error) => {

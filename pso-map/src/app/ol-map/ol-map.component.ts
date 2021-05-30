@@ -1,4 +1,4 @@
-import {Component, NgZone, AfterViewInit, Output, Input, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import {Component, NgZone, AfterViewInit, Output, Input, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import {View, Feature, Map, MapBrowserEvent } from 'ol';
 import {Coordinate} from 'ol/coordinate';
 import { ScaleLine, defaults as DefaultControls} from 'ol/control';
@@ -16,18 +16,21 @@ import ImageLayer from 'ol/layer/Image';
 import * as olInteraction from 'ol/interaction';
 import { MapLocation } from './map-location';
 import Point from 'ol/geom/Point';
-import {Icon, Style} from 'ol/style';
+import {Fill, Icon, Style} from 'ol/style';
 import IconAnchorUnits from 'ol/style/IconAnchorUnits';
 import VectorSource from 'ol/source/Vector';
+import { mapFeature } from '../api/mapFeature';
+import CircleStyle from 'ol/style/Circle';
 
 @Component({
   selector: 'app-ol-map',
   templateUrl: './ol-map.component.html',
   styleUrls: ['./ol-map.component.scss']
 })
-export class OlMapComponent implements AfterViewInit {
+export class OlMapComponent implements AfterViewInit, OnChanges {
   @Input() public center: Coordinate | undefined;
   @Input() public zoom: number | undefined;
+  @Input() public mapFeatures: Array<mapFeature> = [];
   @Output() public mapLocation = new EventEmitter<MapLocation>();
   @Output() public addLocation = new EventEmitter<Coordinate>();
   @Output() public mapReady = new EventEmitter<Map>();
@@ -40,6 +43,12 @@ export class OlMapComponent implements AfterViewInit {
   diamondSymbols: VectorLayer | undefined;
 
   constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.mapFeatures.currentValue) {
+      this.addDiamonds();
+    }
+  }
 
   public ngAfterViewInit(): void {
     if (!this.map) {
@@ -90,8 +99,6 @@ export class OlMapComponent implements AfterViewInit {
     if (zoomInteraction) {
       this.map.removeInteraction(zoomInteraction);
     }
-
-    this.addDiamonds();
   }
 
   private onMoveEnd(): void {
@@ -112,12 +119,20 @@ export class OlMapComponent implements AfterViewInit {
   private onDoubleClick(event: MapBrowserEvent): void {
     console.log('doubleclick', event.coordinate);
     const newFeature = new Feature(new Point(event.coordinate));
+    // newFeature.setStyle(new Style({
+    //   image: new Icon({
+    //     anchor: [0.5, 16],
+    //     anchorXUnits: IconAnchorUnits.FRACTION,
+    //     anchorYUnits: IconAnchorUnits.PIXELS,
+    //     src: '/assets/symbols/diamond.png'
+    //   })
+    // }));
     newFeature.setStyle(new Style({
-      image: new Icon({
-        anchor: [0.5, 16],
-        anchorXUnits: IconAnchorUnits.FRACTION,
-        anchorYUnits: IconAnchorUnits.PIXELS,
-        src: '/assets/symbols/diamond.png'
+      image: new CircleStyle({
+        radius: 5,
+        fill: new Fill({
+          color: '#E8D540'
+        })
       })
     }));
     this.diamondSymbols?.getSource().addFeature(newFeature);
@@ -125,22 +140,31 @@ export class OlMapComponent implements AfterViewInit {
   }
 
   private addDiamonds(): void {
-    if (!this.map) {
+    if (!this.map || this.mapFeatures.length === 0) {
       return;
     }
 
-    const diamonds = new Array<Feature>(100);
+    const diamonds = new Array<Feature>(this.mapFeatures.length);
+    // const diamondStyle = new Style({
+    //   image: new Icon({
+    //     anchor: [0.5, 16],
+    //     anchorXUnits: IconAnchorUnits.FRACTION,
+    //     anchorYUnits: IconAnchorUnits.PIXELS,
+    //     src: '/assets/symbols/diamond.png'
+    //   })
+    // });
+
     const diamondStyle = new Style({
-      image: new Icon({
-        anchor: [0.5, 16],
-        anchorXUnits: IconAnchorUnits.FRACTION,
-        anchorYUnits: IconAnchorUnits.PIXELS,
-        src: '/assets/symbols/diamond.png'
+      image: new CircleStyle({
+        radius: 5,
+        fill: new Fill({
+          color: '#E8D540'
+        })
       })
     });
     
-    for(let i = 0; i < 100; ++i) {
-      const coordinates = [2048 * Math.random(), 2048 * Math.random()];
+    for(let i = 0; i < this.mapFeatures.length; i++) {
+      const coordinates = [this.mapFeatures[i].XCoord, this.mapFeatures[i].YCoord];
       diamonds[i] = new Feature(new Point(coordinates));
       diamonds[i].setStyle(diamondStyle);
     }

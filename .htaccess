@@ -1,0 +1,6 @@
+# .htaccess-Datei für Passwortschutz
+AuthName "Password secured"
+#AuthType Digest
+AuthType Basic
+AuthUserFile /home/httpd/vhosts/thecell.eu/psomap.thecell.eu/.htpasswd
+Require valid-user

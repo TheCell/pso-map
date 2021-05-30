@@ -1,9 +1,11 @@
 <p>test-map works!</p>
 <!-- <div id="hotel_map"></div>
 <p>fini</p> -->
-<app-ol-map class="map"
+<app-ol-map
+class="map"
 [center]="[-483281,6904172]"
 [zoom]="8.5"
+[mapFeatures]="mapFeatures"
 (mapReady)="onMapReady($event)"
 (addLocation)="addLocation($event)"
 (mapLocation)="onCurrentLocation($event)"

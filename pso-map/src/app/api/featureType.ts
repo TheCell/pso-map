@@ -1,4 +1,4 @@
 export interface featureType {
-    id: number,
-    name?: string
+    Id: number,
+    Name?: string
 }
