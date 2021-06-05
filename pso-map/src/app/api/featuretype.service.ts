@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { featureType } from './FeatureType';
+import { environment } from './../../environments/environment';
 
 @Injectable()
 export class FeaturetypeService {
-  private featureTypeUrl = 'https://psomap.thecell.eu/api/public/index.php/featuretype/';
+  private featureTypeUrl = `${environment.apiUrl}featuretype/`;
 
   constructor(private http: HttpClient) { }
 

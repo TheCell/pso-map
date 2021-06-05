@@ -3,12 +3,13 @@ import { ErrorHandler, Injectable } from '@angular/core';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { mapFeature } from './mapFeature';
+import { environment } from './../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MapFeatureService {
-  private mapFeatureUrl = 'https://psomap.thecell.eu/api/public/index.php/mapfeature/';
+  private mapFeatureUrl = `${environment.apiUrl}mapfeature/`;
 
   constructor(private http: HttpClient, private errorHandler: ErrorHandler) { }
 
