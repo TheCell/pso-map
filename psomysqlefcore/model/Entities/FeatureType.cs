@@ -10,6 +10,8 @@ namespace psomysqlefcore.model.Entities
 
         public string? Name { get; set; }
 
+        public string? Color { get; set; }
+
         public virtual ICollection<MapFeature> MapFeatures { get; set; }
     }
 }

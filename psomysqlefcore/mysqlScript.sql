@@ -38,3 +38,12 @@ VALUES ('20210524134624_Initial', '5.0.6');
 
 COMMIT;
 
+START TRANSACTION;
+
+ALTER TABLE `FeatureType` ADD `Color` text NULL;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20210605185303_AddedColorForFeatureType', '5.0.6');
+
+COMMIT;
+
