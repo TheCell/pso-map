@@ -10,12 +10,14 @@ import { AuthModule } from './auth/auth/auth.module';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ApiModule } from './api/api.module';
+import { FeatureManagementComponent } from './feature-management/feature-management.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TestMapComponent,
-    OlMapComponent
+    OlMapComponent,
+    FeatureManagementComponent
   ],
   imports: [
     BrowserModule,

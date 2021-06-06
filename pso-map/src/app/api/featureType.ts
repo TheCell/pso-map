@@ -1,4 +1,5 @@
 export interface featureType {
     Id: number,
-    Name?: string
+    Name?: string,
+    Color?: string
 }
