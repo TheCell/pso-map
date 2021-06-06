@@ -16,13 +16,15 @@ import ImageLayer from 'ol/layer/Image';
 import * as olInteraction from 'ol/interaction';
 import { MapLocation } from './map-location';
 import Point from 'ol/geom/Point';
-import {Fill, Icon, Style} from 'ol/style';
+import {Fill, Icon, Stroke, Style} from 'ol/style';
 import IconAnchorUnits from 'ol/style/IconAnchorUnits';
 import VectorSource from 'ol/source/Vector';
 import { mapFeature } from '../api/mapFeature';
 import CircleStyle from 'ol/style/Circle';
 import { featureType } from '../api/FeatureType';
-import { Modify } from 'ol/interaction';
+import { Modify, Select } from 'ol/interaction';
+import { SelectEvent } from 'ol/interaction/Select';
+import { altKeyOnly, click } from 'ol/events/condition';
 
 @Component({
   selector: 'app-ol-map',
@@ -37,6 +39,7 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   @Input() public selectedFeatureType = 0;
   @Output() public mapLocation = new EventEmitter<MapLocation>();
   @Output() public addLocation = new EventEmitter<Coordinate>();
+  @Output() public removeLocation = new EventEmitter<number>();
   @Output() public mapReady = new EventEmitter<Map>();
 
   private extent: Extent = [0, 0, 2048, 2048];
@@ -47,10 +50,25 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   private featuresSymbols: VectorLayer | undefined;
   private featureStyles: Array<Style> = [];
   private featureLayers: Array<VectorLayer> = [];
+  private vectorSources: Array<VectorSource> = [];
+  private highlightStyle: Style;
+  // private modify: Modify | undefined;
+  // private interaction: Select;
+  private selectAction: Select | undefined;
 
-  constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { 
+    this.highlightStyle = new Style({
+      image: new CircleStyle({
+        radius: 5,
+        stroke: new Stroke({
+          color: '#fd7e14',
+          width: 3
+        })
+      })
+    });
+  }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes.featureTypes && changes.featureTypes.currentValue) {
       this.updateFeatureTypes();
     }
@@ -105,6 +123,7 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
 
     this.map.on('moveend', this.onMoveEnd.bind(this));
     this.map.on('dblclick', this.onDoubleClick.bind(this));
+    this.map.on('pointermove', this.onPointerMove.bind(this));
     const zoomInteraction = this.map.getInteractions().getArray().find((interaction) => interaction instanceof olInteraction.DoubleClickZoom );
     if (zoomInteraction) {
       this.map.removeInteraction(zoomInteraction);
@@ -126,14 +145,30 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
     this.mapLocation.next(location);
   }
 
+  private onPointerMove(event: any): void {
+    if (event.dragging) {
+      return;
+    }
+    
+    if (!this.map) {
+      return;
+    }
+
+    const pixel = this.map?.getEventPixel(event.originalEvent);
+    const hit = this.map.hasFeatureAtPixel(pixel);
+    if (this.map)
+    if (hit) {
+      const target = this.map.getTarget();
+    } else {
+    }
+  }
+
   private onDoubleClick(event: MapBrowserEvent): void {
     if (this.selectedFeatureType <= 0) {
       return;
     }
 
-    // console.log('doubleclick', event.coordinate);
     const newFeature = new Feature(new Point(event.coordinate));
-    // console.log('selectedFeatureType', this.selectedFeatureType);
     newFeature.setStyle(this.featureStyles[this.selectedFeatureType]);
     
     this.featuresSymbols?.getSource().addFeature(newFeature);
@@ -160,16 +195,13 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
     }
     
     const amountOfTypes = this.featureTypes.length;
-    // const features = new Array<Feature>(this.mapFeatures.length);
-    // let featuresPerType = new Array(amountOfTypes);
     let featuresPerType = Array<Array<Feature>>();
     
     for(let i = 0; i < this.mapFeatures.length; i++) {
       const coordinates = [this.mapFeatures[i].XCoord, this.mapFeatures[i].YCoord];
-      // features[i] = new Feature(new Point(coordinates));
-      // features[i].setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
       
       const newFeature = new Feature(new Point(coordinates));
+      newFeature.setId(this.mapFeatures[i].Id);
       newFeature.setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
 
       if (!featuresPerType[this.mapFeatures[i].FeatureTypeId]) {
@@ -178,40 +210,51 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
       featuresPerType[this.mapFeatures[i].FeatureTypeId].push(newFeature);
     }
 
-    console.log(featuresPerType);
-
     this.featureTypes.forEach((featuretype) => {
       if (!featuresPerType[featuretype.Id]) {
         return;
       }
 
-      const featureVectorSource = new VectorSource({
+      this.vectorSources[featuretype.Id] = new VectorSource({
         features: [...featuresPerType[featuretype.Id]]
       });
 
       this.featureLayers[featuretype.Id] = new VectorLayer({
-        source: featureVectorSource
+        source: this.vectorSources[featuretype.Id]
       });
 
       if (this.map) {
         this.map.addLayer(this.featureLayers[featuretype.Id]);
       }
     });
-    // const featuresVectorSource = new VectorSource({
-    //   features: [...features]
-    // });
 
-
-    // this.featuresSymbols = new VectorLayer({
-    //   source: featuresVectorSource
-    // });
-
-    // this.map.addLayer(this.featuresSymbols);
+    this.addInteraction();
   }
+  
+  private addInteraction(): void {
+    if (this.selectAction) {
+      this.map?.removeInteraction(this.selectAction);
+    }
 
-  // private enableInteraction(): void {
-  //   const modify = new Modify({
-  //     hitDetection: layer
-  //   })
-  // }
+    this.selectAction = new Select({
+      condition: function (MapBrowserEvent) {
+        return click(MapBrowserEvent) && altKeyOnly(MapBrowserEvent);
+      }
+    });
+
+    this.map?.addInteraction(this.selectAction);
+
+    const removeEmiter = this.removeLocation;
+    this.selectAction.on('select', function (e: SelectEvent) {
+      e.selected.forEach((feature) => {
+        let id = 0;
+        if (Number(feature.getId())) {
+          id = Number(feature.getId());
+        }
+        removeEmiter.emit(id);
+
+        feature.dispose();
+      });
+    });
+  }
 }

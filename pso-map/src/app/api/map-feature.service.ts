@@ -24,4 +24,8 @@ export class MapFeatureService {
   public addMapFeature(mapFeature: mapFeature) {
     return this.http.post(this.mapFeatureUrl, mapFeature).pipe(catchError(val => of(`addMapFeature failed`)));
   }
+
+  public deleteMapFeature(id: number) {
+    return this.http.delete(`${this.mapFeatureUrl}${id}`);
+  }
 }

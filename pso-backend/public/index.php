@@ -17,7 +17,7 @@ $apipart = array_slice($uri, 4);
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE");
     header("Access-Control-Allow-Headers: Authorization, Content-Type,Accept, Origin");
-exit(0);
+    exit(0);
 }
 
 if (!isset($apipart[0]))

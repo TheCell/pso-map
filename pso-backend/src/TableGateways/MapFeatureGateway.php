@@ -18,7 +18,7 @@ class MapFeatureGateway
             FROM
                 MapFeature
             WHERE
-                :Id = ?;
+                Id = ?;
         ";
 
         try
@@ -109,13 +109,13 @@ class MapFeatureGateway
     {
         $statement = "
             DELETE FROM MapFeature
-            WHERE Id = :id;
+            WHERE Id = ?;
         ";
 
         try
         {
             $statement = $this->db->prepare($statement);
-            $statement->execute(array('Id' => $id));
+            $statement->execute(array($id));
             return $statement->rowCount();
         }
         catch (\PDOException $e)

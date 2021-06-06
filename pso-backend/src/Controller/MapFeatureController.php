@@ -39,7 +39,7 @@ class MapFeatureController
             case 'PUT':
                 break;
             case 'DELETE':
-                $response = $this->deleteFeature($this->userId);
+                $response = $this->deleteFeature($this->featureTypeId);
                 break;
             default:
                 $response = $this->notFoundResponse();

@@ -38,18 +38,18 @@ export class TestMapComponent implements OnInit {
   }
 
   public onMapReady(things: any): void {
-    console.log('map ready', things);
+    // console.log('map ready', things);
   }
 
   public addLocation(info: Coordinate): void {
-    console.log('clickedEvent', info);
-    console.log(this.form.value);
+    // console.log('clickedEvent', info);
+    // console.log(this.form.value);
     this.mapFeatureService.addMapFeature({
       FeatureTypeId: this.form.controls.featureType.value,
       XCoord: info[0],
       YCoord: info[1]
     }).subscribe(() => {
-      console.log("jobs done");
+      // console.log("jobs done");
     }, (error) => {
       console.error(error);
     });
@@ -57,5 +57,12 @@ export class TestMapComponent implements OnInit {
 
   public onCurrentLocation(location: MapLocation): void {
     // console.log(location);
+  }
+
+  public removeLocation(id: number): void {
+    // console.log('deleting point ' + id);
+    this.mapFeatureService.deleteMapFeature(id).subscribe(() => {
+      // console.log('deleted');
+    });
   }
 }
