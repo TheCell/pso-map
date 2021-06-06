@@ -17,6 +17,11 @@ namespace psomysqlefcore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<MapFeature>()
+                .HasOne(mf => mf.FeatureType)
+                .WithMany(mf => mf.MapFeatures)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

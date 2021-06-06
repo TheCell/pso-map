@@ -47,3 +47,14 @@ VALUES ('20210605185303_AddedColorForFeatureType', '5.0.6');
 
 COMMIT;
 
+START TRANSACTION;
+
+ALTER TABLE `MapFeature` DROP CONSTRAINT `FK_MapFeature_FeatureType_FeatureTypeId`;
+
+ALTER TABLE `MapFeature` ADD CONSTRAINT `FK_MapFeature_FeatureType_FeatureTypeId` FOREIGN KEY (`FeatureTypeId`) REFERENCES `FeatureType` (`Id`) ON DELETE RESTRICT;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20210605231921_ChangedDelete', '5.0.6');
+
+COMMIT;
+
