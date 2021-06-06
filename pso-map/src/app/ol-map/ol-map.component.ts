@@ -51,22 +51,9 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   private featureStyles: Array<Style> = [];
   private featureLayers: Array<VectorLayer> = [];
   private vectorSources: Array<VectorSource> = [];
-  private highlightStyle: Style;
-  // private modify: Modify | undefined;
-  // private interaction: Select;
   private selectAction: Select | undefined;
 
-  constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { 
-    this.highlightStyle = new Style({
-      image: new CircleStyle({
-        radius: 5,
-        stroke: new Stroke({
-          color: '#fd7e14',
-          width: 3
-        })
-      })
-    });
-  }
+  constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.featureTypes && changes.featureTypes.currentValue) {
@@ -80,11 +67,9 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
 
   public ngAfterViewInit(): void {
     if (!this.map) {
-      // this.zone.runOutsideAngular(() => this.initMap())
       this.initMap();
     } 
 
-    // setTimeout(()=>this.mapReady.emit(this.Map));
     this.mapReady.emit(this.map);
   }
 
@@ -252,8 +237,6 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
           id = Number(feature.getId());
         }
         removeEmiter.emit(id);
-
-        feature.dispose();
       });
     });
   }
