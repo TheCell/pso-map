@@ -1,13 +1,17 @@
 <form [formGroup]="form">
-    <select [formControlName]="'featureType'">
-        <option *ngFor="let featureType of featureTypes" [ngValue]="featureType.Id">{{ featureType.Name }}</option>
-    </select>
+    <fieldset>
+        <legend>Select the category</legend>
+        <select [formControlName]="'featureType'">
+            <option *ngFor="let featureType of featureTypes" [ngValue]="featureType.Id">{{ featureType.Name }}</option>
+        </select>
+    </fieldset>
 </form>
+
 <app-ol-map
 class="map"
 [center]="[-483281,6904172]"
 [zoom]="8.5"
-[selectedFeatureType]="this.form.controls.featureType.value"
+[selectedFeatureType]="form.controls.featureType.value"
 [mapFeatures]="mapFeatures"
 [featureTypes]="featureTypes"
 (mapReady)="onMapReady($event)"

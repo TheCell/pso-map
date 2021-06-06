@@ -22,6 +22,7 @@ import VectorSource from 'ol/source/Vector';
 import { mapFeature } from '../api/mapFeature';
 import CircleStyle from 'ol/style/Circle';
 import { featureType } from '../api/FeatureType';
+import { Modify } from 'ol/interaction';
 
 @Component({
   selector: 'app-ol-map',
@@ -38,13 +39,14 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   @Output() public addLocation = new EventEmitter<Coordinate>();
   @Output() public mapReady = new EventEmitter<Map>();
 
-  extent: Extent = [0, 0, 2048, 2048];
-  projection: Projection | undefined;
-  psoLayer: ImageLayer | undefined;
-  view: View | undefined;
-  map: Map | undefined;
-  featuresSymbols: VectorLayer | undefined;
-  featureStyles: Array<Style> = [];
+  private extent: Extent = [0, 0, 2048, 2048];
+  private projection: Projection | undefined;
+  private psoLayer: ImageLayer | undefined;
+  private view: View | undefined;
+  private map: Map | undefined;
+  private featuresSymbols: VectorLayer | undefined;
+  private featureStyles: Array<Style> = [];
+  private featureLayers: Array<VectorLayer> = [];
 
   constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
@@ -125,9 +127,13 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   }
 
   private onDoubleClick(event: MapBrowserEvent): void {
-    console.log('doubleclick', event.coordinate);
+    if (this.selectedFeatureType <= 0) {
+      return;
+    }
+
+    // console.log('doubleclick', event.coordinate);
     const newFeature = new Feature(new Point(event.coordinate));
-    console.log('selectedFeatureType', this.selectedFeatureType);
+    // console.log('selectedFeatureType', this.selectedFeatureType);
     newFeature.setStyle(this.featureStyles[this.selectedFeatureType]);
     
     this.featuresSymbols?.getSource().addFeature(newFeature);
@@ -153,22 +159,59 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
       return;
     }
     
-    const features = new Array<Feature>(this.mapFeatures.length);
+    const amountOfTypes = this.featureTypes.length;
+    // const features = new Array<Feature>(this.mapFeatures.length);
+    // let featuresPerType = new Array(amountOfTypes);
+    let featuresPerType = Array<Array<Feature>>();
     
     for(let i = 0; i < this.mapFeatures.length; i++) {
       const coordinates = [this.mapFeatures[i].XCoord, this.mapFeatures[i].YCoord];
-      features[i] = new Feature(new Point(coordinates));
-      features[i].setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
+      // features[i] = new Feature(new Point(coordinates));
+      // features[i].setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
+      
+      const newFeature = new Feature(new Point(coordinates));
+      newFeature.setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
+
+      if (!featuresPerType[this.mapFeatures[i].FeatureTypeId]) {
+        featuresPerType[this.mapFeatures[i].FeatureTypeId] = new Array<Feature>();
+      }
+      featuresPerType[this.mapFeatures[i].FeatureTypeId].push(newFeature);
     }
 
-    const featuresVectorSource = new VectorSource({
-      features: [...features]
-    });
+    console.log(featuresPerType);
 
-    this.featuresSymbols = new VectorLayer({
-      source: featuresVectorSource
-    });
+    this.featureTypes.forEach((featuretype) => {
+      if (!featuresPerType[featuretype.Id]) {
+        return;
+      }
 
-    this.map.addLayer(this.featuresSymbols);
+      const featureVectorSource = new VectorSource({
+        features: [...featuresPerType[featuretype.Id]]
+      });
+
+      this.featureLayers[featuretype.Id] = new VectorLayer({
+        source: featureVectorSource
+      });
+
+      if (this.map) {
+        this.map.addLayer(this.featureLayers[featuretype.Id]);
+      }
+    });
+    // const featuresVectorSource = new VectorSource({
+    //   features: [...features]
+    // });
+
+
+    // this.featuresSymbols = new VectorLayer({
+    //   source: featuresVectorSource
+    // });
+
+    // this.map.addLayer(this.featuresSymbols);
   }
+
+  // private enableInteraction(): void {
+  //   const modify = new Modify({
+  //     hitDetection: layer
+  //   })
+  // }
 }

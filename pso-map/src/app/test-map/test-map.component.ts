@@ -45,7 +45,7 @@ export class TestMapComponent implements OnInit {
     console.log('clickedEvent', info);
     console.log(this.form.value);
     this.mapFeatureService.addMapFeature({
-      FeatureTypeId: this.form.value,
+      FeatureTypeId: this.form.controls.featureType.value,
       XCoord: info[0],
       YCoord: info[1]
     }).subscribe(() => {
