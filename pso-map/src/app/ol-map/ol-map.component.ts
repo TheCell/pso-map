@@ -21,6 +21,7 @@ import IconAnchorUnits from 'ol/style/IconAnchorUnits';
 import VectorSource from 'ol/source/Vector';
 import { mapFeature } from '../api/mapFeature';
 import CircleStyle from 'ol/style/Circle';
+import { featureType } from '../api/FeatureType';
 
 @Component({
   selector: 'app-ol-map',
@@ -31,6 +32,8 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   @Input() public center: Coordinate | undefined;
   @Input() public zoom: number | undefined;
   @Input() public mapFeatures: Array<mapFeature> = [];
+  @Input() public featureTypes: Array<featureType> = [];
+  @Input() public selectedFeatureType = 0;
   @Output() public mapLocation = new EventEmitter<MapLocation>();
   @Output() public addLocation = new EventEmitter<Coordinate>();
   @Output() public mapReady = new EventEmitter<Map>();
@@ -40,13 +43,18 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   psoLayer: ImageLayer | undefined;
   view: View | undefined;
   map: Map | undefined;
-  diamondSymbols: VectorLayer | undefined;
+  featuresSymbols: VectorLayer | undefined;
+  featureStyles: Array<Style> = [];
 
   constructor(private zone: NgZone, private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.mapFeatures.currentValue) {
-      this.addDiamonds();
+    if (changes.featureTypes && changes.featureTypes.currentValue) {
+      this.updateFeatureTypes();
+    }
+
+    if (changes.mapFeatures && changes.mapFeatures.currentValue) {
+      this.addFeatures();
     }
   }
 
@@ -119,64 +127,48 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   private onDoubleClick(event: MapBrowserEvent): void {
     console.log('doubleclick', event.coordinate);
     const newFeature = new Feature(new Point(event.coordinate));
-    // newFeature.setStyle(new Style({
-    //   image: new Icon({
-    //     anchor: [0.5, 16],
-    //     anchorXUnits: IconAnchorUnits.FRACTION,
-    //     anchorYUnits: IconAnchorUnits.PIXELS,
-    //     src: '/assets/symbols/diamond.png'
-    //   })
-    // }));
-    newFeature.setStyle(new Style({
-      image: new CircleStyle({
-        radius: 5,
-        fill: new Fill({
-          color: '#E8D540'
-        })
-      })
-    }));
-    this.diamondSymbols?.getSource().addFeature(newFeature);
+    console.log('selectedFeatureType', this.selectedFeatureType);
+    newFeature.setStyle(this.featureStyles[this.selectedFeatureType]);
+    
+    this.featuresSymbols?.getSource().addFeature(newFeature);
     this.addLocation.emit(event.coordinate);
   }
 
-  private addDiamonds(): void {
+  private updateFeatureTypes(): void {
+    this.featureStyles = [];
+    this.featureTypes.forEach((featureType: featureType) => {
+      this.featureStyles[featureType.Id] = new Style({
+        image: new CircleStyle({
+          radius: 5,
+          fill: new Fill({
+            color: featureType.Color
+          })
+        })
+      });
+    });
+  }
+
+  private addFeatures(): void {
     if (!this.map || this.mapFeatures.length === 0) {
       return;
     }
-
-    const diamonds = new Array<Feature>(this.mapFeatures.length);
-    // const diamondStyle = new Style({
-    //   image: new Icon({
-    //     anchor: [0.5, 16],
-    //     anchorXUnits: IconAnchorUnits.FRACTION,
-    //     anchorYUnits: IconAnchorUnits.PIXELS,
-    //     src: '/assets/symbols/diamond.png'
-    //   })
-    // });
-
-    const diamondStyle = new Style({
-      image: new CircleStyle({
-        radius: 5,
-        fill: new Fill({
-          color: '#E8D540'
-        })
-      })
-    });
+    
+    const features = new Array<Feature>(this.mapFeatures.length);
     
     for(let i = 0; i < this.mapFeatures.length; i++) {
       const coordinates = [this.mapFeatures[i].XCoord, this.mapFeatures[i].YCoord];
-      diamonds[i] = new Feature(new Point(coordinates));
-      diamonds[i].setStyle(diamondStyle);
+      features[i] = new Feature(new Point(coordinates));
+      features[i].setStyle(this.featureStyles[this.mapFeatures[i].FeatureTypeId]);
     }
 
-    const diamondVectorSource = new VectorSource({
-      features: [...diamonds]
+    const featuresVectorSource = new VectorSource({
+      features: [...features]
     });
 
-    this.diamondSymbols = new VectorLayer({
-      source: diamondVectorSource
+    this.featuresSymbols = new VectorLayer({
+      source: featuresVectorSource
     });
 
-    this.map.addLayer(this.diamondSymbols);
+    this.map.addLayer(this.featuresSymbols);
   }
 }

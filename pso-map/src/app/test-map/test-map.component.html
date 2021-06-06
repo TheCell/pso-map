@@ -1,11 +1,15 @@
-<p>test-map works!</p>
-<!-- <div id="hotel_map"></div>
-<p>fini</p> -->
+<form [formGroup]="form">
+    <select [formControlName]="'featureType'">
+        <option *ngFor="let featureType of featureTypes" [ngValue]="featureType.Id">{{ featureType.Name }}</option>
+    </select>
+</form>
 <app-ol-map
 class="map"
 [center]="[-483281,6904172]"
 [zoom]="8.5"
+[selectedFeatureType]="this.form.controls.featureType.value"
 [mapFeatures]="mapFeatures"
+[featureTypes]="featureTypes"
 (mapReady)="onMapReady($event)"
 (addLocation)="addLocation($event)"
 (mapLocation)="onCurrentLocation($event)"

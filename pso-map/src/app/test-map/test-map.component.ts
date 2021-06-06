@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import Point from 'ol/geom/Point';
+import { forkJoin } from 'rxjs';
 import { featureType } from '../api/FeatureType';
 import { FeaturetypeService } from '../api/featuretype.service';
 import { MapFeatureService } from '../api/map-feature.service';
@@ -16,22 +18,22 @@ import { MapLocation } from '../ol-map/map-location';
 export class TestMapComponent implements OnInit {
   public featureTypes: Array<featureType> = [];
   public mapFeatures: Array<mapFeature> = [];
+  public form: FormGroup;
 
   constructor(
     private featuretypeService: FeaturetypeService,
-    private mapFeatureService: MapFeatureService) { }
+    private mapFeatureService: MapFeatureService,
+    private formBuilder: FormBuilder) {
+      this.form = this.formBuilder.group({
+        featureType: [0]
+      });
+    }
 
   public ngOnInit(): void {
-    this.featuretypeService.getFeatureTypes().subscribe((types: featureType[]) => {
-      this.featureTypes = types;
-      console.log(this.featureTypes);
-    });
-    this.mapFeatureService.getMapFeatures().subscribe((mapFeatures) => {
-      this.mapFeatures = mapFeatures;
-      console.log(mapFeatures);
-    });
-    this.mapFeatureService.getMapFeaturesForType(1).subscribe((mapFeatures) => {
-      console.log(mapFeatures);
+    forkJoin([this.featuretypeService.getFeatureTypes(), this.mapFeatureService.getMapFeatures()])
+      .subscribe(([featureTypes, mapFeatures]: [featureType[], mapFeature[]]) => {
+        this.featureTypes = featureTypes;
+        this.mapFeatures = mapFeatures;
     });
   }
 
@@ -41,8 +43,9 @@ export class TestMapComponent implements OnInit {
 
   public addLocation(info: Coordinate): void {
     console.log('clickedEvent', info);
+    console.log(this.form.value);
     this.mapFeatureService.addMapFeature({
-      FeatureTypeId: 1,
+      FeatureTypeId: this.form.value,
       XCoord: info[0],
       YCoord: info[1]
     }).subscribe(() => {
