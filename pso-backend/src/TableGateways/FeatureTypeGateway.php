@@ -14,7 +14,7 @@ class FeatureTypeGateway
     {
         $statement = "
             SELECT 
-                Id, Name
+                Id, Name, Color
             FROM
                 FeatureType
             WHERE
@@ -38,7 +38,7 @@ class FeatureTypeGateway
     {
         $statement = "
             SELECT 
-                Id, Name
+                Id, Name, Color
             FROM
                 FeatureType;
         ";
@@ -54,14 +54,38 @@ class FeatureTypeGateway
             exit($e->getMessage());
         }
     }
+    
+    public function hasMapFeatures($FeatureTypeId)
+    {
+        $statement = "
+            SELECT 
+                Id
+            FROM
+                MapFeature
+            WHERE
+                FeatureTypeId = :FeatureTypeId;
+        ";
+
+        try
+        {
+            $statement = $this->db->prepare($statement);
+            $statement->execute(array('FeatureTypeId' => $FeatureTypeId));
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            return count($result) > 0;
+        }
+        catch (\PDOException $e)
+        {
+            exit($e->getMessage());
+        }
+    }
 
     public function insert(array $input)
     {
         $statement = "
             INSERT INTO FeatureType 
-                (Name)
+                (Name, Color)
             VALUES
-                (:Name);
+                (:Name, :Color);
         ";
 
         try
@@ -69,6 +93,7 @@ class FeatureTypeGateway
             $statement = $this->db->prepare($statement);
             $statement->execute(array(
                 'Name' => $input['Name'],
+                'Color' => $input['Color'],
             ));
             return $statement->rowCount();
         }

@@ -79,6 +79,12 @@ class FeatureTypeController
         {
             return $this->notFoundResponse();
         }
+        
+        $hasEntries = $this->FeatureTypeGateway->hasMapFeatures($id);
+        if ($hasEntries)
+        {
+            return $this->forbiddenResponse();
+        }
         $this->FeatureTypeGateway->delete($id);
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = null;
@@ -113,12 +119,23 @@ class FeatureTypeController
         {
             return false;
         }
+        if (!isset($input['Color']))
+        {
+            return false;
+        }
         return true;
     }
     
     private function notFoundResponse()
     {
         $response['status_code_header'] = 'HTTP/1.1 404 Not Found';
+        $response['body'] = null;
+        return $response;
+    }
+    
+    private function forbiddenResponse()
+    {
+        $response['status_code_header'] = 'HTTP/1.1 403 Forbidden';
         $response['body'] = null;
         return $response;
     }
