@@ -171,7 +171,20 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
     const newFeature = new Feature(new Point(event.coordinate));
     newFeature.setStyle(this.featureStyles[this.selectedFeatureType]);
     
-    this.vectorSources[this.selectedFeatureType].addFeature(newFeature);
+    if (this.vectorSources[this.selectedFeatureType]) {
+      console.log('exists');
+      this.vectorSources[this.selectedFeatureType].addFeature(newFeature);
+    } else {
+      this.vectorSources[this.selectedFeatureType] = new VectorSource({
+        features: [newFeature]
+      });
+
+      this.featureLayers[this.selectedFeatureType] = new VectorLayer({
+        source: this.vectorSources[this.selectedFeatureType]
+      });
+    }
+
+    this.addFeatures();
     this.addLocation.emit(event.coordinate);
   }
 
