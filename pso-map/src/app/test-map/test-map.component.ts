@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import Point from 'ol/geom/Point';
@@ -19,6 +19,8 @@ export class TestMapComponent implements OnInit {
   public featureTypes: Array<featureType> = [];
   public mapFeatures: Array<mapFeature> = [];
   public form: FormGroup;
+  public layersForm: FormGroup;
+  public activeLayers: Array<number> = [];
 
   constructor(
     private featuretypeService: FeaturetypeService,
@@ -27,13 +29,35 @@ export class TestMapComponent implements OnInit {
       this.form = this.formBuilder.group({
         featureType: [0]
       });
+
+      this.layersForm = this.formBuilder.group({
+        layers: new FormArray([])
+      });
+
+      this.layersForm.valueChanges.subscribe((changes) => {
+        this.activeLayers = [];
+        for (let i = 0; i < changes.layers.length; i++) {
+          if (changes.layers[i]) {
+            this.activeLayers.push(this.featureTypes[i].Id);
+          }
+        }
+      });
     }
+
+  get layersFormArray(): FormArray {
+    return this.layersForm.controls.layers as FormArray;
+  }
 
   public ngOnInit(): void {
     forkJoin([this.featuretypeService.getFeatureTypes(), this.mapFeatureService.getMapFeatures()])
       .subscribe(([featureTypes, mapFeatures]: [featureType[], mapFeature[]]) => {
+        featureTypes.forEach((featureType) => {
+          featureType.Id = Number(featureType.Id);
+        });
         this.featureTypes = featureTypes;
         this.mapFeatures = mapFeatures;
+
+        this.featureTypes.forEach(() => this.layersFormArray.push(new FormControl(false)));
     });
   }
 

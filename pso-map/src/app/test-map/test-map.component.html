@@ -6,7 +6,12 @@
         </select>
     </fieldset>
 </form>
-
+<form [formGroup]="layersForm">
+    <label formArrayName="layers" *ngFor="let layer of layersFormArray.controls; let i = index">
+        <input type="checkbox" [formControlName]="i">
+        {{ featureTypes[i].Name }}
+    </label>
+</form>
 <app-ol-map
 class="map"
 [center]="[-483281,6904172]"
@@ -14,6 +19,7 @@ class="map"
 [selectedFeatureType]="form.controls.featureType.value"
 [mapFeatures]="mapFeatures"
 [featureTypes]="featureTypes"
+[activeLayers]="activeLayers"
 (mapReady)="onMapReady($event)"
 (addLocation)="addLocation($event)"
 (mapLocation)="onCurrentLocation($event)"

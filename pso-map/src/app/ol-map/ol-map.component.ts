@@ -37,6 +37,7 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   @Input() public mapFeatures: Array<mapFeature> = [];
   @Input() public featureTypes: Array<featureType> = [];
   @Input() public selectedFeatureType = 0;
+  @Input() public activeLayers: Array<number> = [];
   @Output() public mapLocation = new EventEmitter<MapLocation>();
   @Output() public addLocation = new EventEmitter<Coordinate>();
   @Output() public removeLocation = new EventEmitter<number>();
@@ -62,6 +63,21 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
 
     if (changes.mapFeatures && changes.mapFeatures.currentValue) {
       this.addFeatures();
+    }
+
+    if (changes.activeLayers && changes.activeLayers.currentValue) {
+      if (this.map) {
+        for (let i = 0; i < this.featureTypes.length; i++) {
+          if (!this.featureLayers[this.featureTypes[i].Id]) {
+            continue;
+          }
+          this.map.removeLayer(this.featureLayers[this.featureTypes[i].Id]);
+          if (this.activeLayers.includes(this.featureTypes[i].Id)) {
+            console.log('adding layer');
+            this.map.addLayer(this.featureLayers[this.featureTypes[i].Id]);
+          }
+        }
+      }
     }
   }
 
@@ -89,7 +105,6 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
 
     this.psoLayer = new ImageLayer({
       source: new Static({
-        attributions: 'todo',
         url: '/assets/map/psoMap.png',
         projection: new Projection({
           code: 'psomap',
@@ -101,6 +116,7 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
     });
 
     this.map = new Map({
+      controls: [],
       layers: [this.psoLayer],
       target: 'mapid',
       view: this.view
@@ -208,9 +224,9 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
         source: this.vectorSources[featuretype.Id]
       });
 
-      if (this.map) {
-        this.map.addLayer(this.featureLayers[featuretype.Id]);
-      }
+      // if (this.map) {
+      //   this.map.addLayer(this.featureLayers[featuretype.Id]);
+      // }
     });
 
     this.addInteraction();
