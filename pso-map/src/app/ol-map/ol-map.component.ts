@@ -48,7 +48,6 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
   private psoLayer: ImageLayer | undefined;
   private view: View | undefined;
   private map: Map | undefined;
-  private featuresSymbols: VectorLayer | undefined;
   private featureStyles: Array<Style> = [];
   private featureLayers: Array<VectorLayer> = [];
   private vectorSources: Array<VectorSource> = [];
@@ -172,7 +171,7 @@ export class OlMapComponent implements AfterViewInit, OnChanges {
     const newFeature = new Feature(new Point(event.coordinate));
     newFeature.setStyle(this.featureStyles[this.selectedFeatureType]);
     
-    this.featuresSymbols?.getSource().addFeature(newFeature);
+    this.vectorSources[this.selectedFeatureType].addFeature(newFeature);
     this.addLocation.emit(event.coordinate);
   }
 
